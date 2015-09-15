@@ -31,13 +31,6 @@ public class FileReaderSpout implements IRichSpout {
             e.printStackTrace();
         }
 
-     /*
-    ----------------------TODO-----------------------
-    Task: initialize the file reader
-
-
-    ------------------------------------------------- */
-
         this.context = context;
         this._collector = collector;
     }
@@ -46,6 +39,7 @@ public class FileReaderSpout implements IRichSpout {
     public void nextTuple() {
         Utils.sleep(100);
 
+        System.out.println("FILE: " + file + " nextLine: " + sc.hasNextLine());
         if (sc.hasNextLine()) {
             _collector.emit(new Values(sc.nextLine()));
         }
