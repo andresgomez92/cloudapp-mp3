@@ -15,7 +15,7 @@ public class FileReaderSpout implements IRichSpout {
     private SpoutOutputCollector _collector;
     private TopologyContext context;
     private String file;
-    private Scanner sc;
+    BufferedReader br = null;
 
     public FileReaderSpout(final String file) {
         this.file = file;
@@ -26,7 +26,7 @@ public class FileReaderSpout implements IRichSpout {
                      SpoutOutputCollector collector) {
 
         try {
-            sc = new Scanner(new File(file));
+            br = new BufferedReader(new FileReader(file));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -38,10 +38,16 @@ public class FileReaderSpout implements IRichSpout {
     @Override
     public void nextTuple() {
         Utils.sleep(100);
+        String sCurrentLine = null;
 
-        System.out.println("FILE: " + file + " nextLine: " + sc.hasNextLine());
-        if (sc.hasNextLine()) {
-            _collector.emit(new Values(sc.nextLine()));
+        try {
+            sCurrentLine = br.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (sCurrentLine != null) {
+            _collector.emit(new Values(sCurrentLine));
         }
     }
 
@@ -54,7 +60,11 @@ public class FileReaderSpout implements IRichSpout {
 
     @Override
     public void close() {
-        sc.close();
+        try {
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
