@@ -26,7 +26,7 @@ public class TopNFinderBolt extends BaseBasicBolt {
         String word = tuple.getString(0);
         Integer count = tuple.getInteger(1);
 
-        if (currentTopWords.size() <= N) {
+        if (currentTopWords.size() < N) {
             currentTopWords.put(word, count);
         } else {
             Integer minValue = Collections.min(currentTopWords.values());
