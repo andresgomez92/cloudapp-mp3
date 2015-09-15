@@ -1,9 +1,7 @@
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Map;
+import java.util.Scanner;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -11,15 +9,27 @@ import backtype.storm.topology.IRichSpout;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
+import backtype.storm.utils.Utils;
 
 public class FileReaderSpout implements IRichSpout {
-  private SpoutOutputCollector _collector;
-  private TopologyContext context;
+    private SpoutOutputCollector _collector;
+    private TopologyContext context;
+    private String file;
+    private Scanner sc;
 
+    public FileReaderSpout(final String file) {
+        this.file = file;
+    }
 
-  @Override
-  public void open(Map conf, TopologyContext context,
-                   SpoutOutputCollector collector) {
+    @Override
+    public void open(Map conf, TopologyContext context,
+                     SpoutOutputCollector collector) {
+
+        try {
+            sc = new Scanner(new File(file));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
      /*
     ----------------------TODO-----------------------
@@ -28,61 +38,50 @@ public class FileReaderSpout implements IRichSpout {
 
     ------------------------------------------------- */
 
-    this.context = context;
-    this._collector = collector;
-  }
+        this.context = context;
+        this._collector = collector;
+    }
 
-  @Override
-  public void nextTuple() {
+    @Override
+    public void nextTuple() {
+        Utils.sleep(100);
 
-     /*
-    ----------------------TODO-----------------------
-    Task:
-    1. read the next line and emit a tuple for it
-    2. don't forget to sleep when the file is entirely read to prevent a busy-loop
+        if (sc.hasNextLine()) {
+            _collector.emit(new Values(sc.nextLine()));
+        }
+    }
 
-    ------------------------------------------------- */
+    @Override
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
 
+        declarer.declare(new Fields("word"));
 
-  }
+    }
 
-  @Override
-  public void declareOutputFields(OutputFieldsDeclarer declarer) {
-
-    declarer.declare(new Fields("word"));
-
-  }
-
-  @Override
-  public void close() {
-   /*
-    ----------------------TODO-----------------------
-    Task: close the file
+    @Override
+    public void close() {
+        sc.close();
+    }
 
 
-    ------------------------------------------------- */
+    @Override
+    public void activate() {
+    }
 
-  }
+    @Override
+    public void deactivate() {
+    }
 
+    @Override
+    public void ack(Object msgId) {
+    }
 
-  @Override
-  public void activate() {
-  }
+    @Override
+    public void fail(Object msgId) {
+    }
 
-  @Override
-  public void deactivate() {
-  }
-
-  @Override
-  public void ack(Object msgId) {
-  }
-
-  @Override
-  public void fail(Object msgId) {
-  }
-
-  @Override
-  public Map<String, Object> getComponentConfiguration() {
-    return null;
-  }
+    @Override
+    public Map<String, Object> getComponentConfiguration() {
+        return null;
+    }
 }
